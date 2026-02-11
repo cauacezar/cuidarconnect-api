@@ -4,7 +4,26 @@ const pool = require("./db");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+// ✅ CONFIGURAÇÃO CORRETA DO CORS
+const allowlist = [
+  "https://cuidarconnect.siteoficial.ws",
+  "https://www.cuidarconnect.siteoficial.ws",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowlist.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("CORS bloqueado: " + origin));
+    }
+  }
+}));
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
@@ -13,6 +32,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const JWT_SECRET = process.env.JWT_SECRET || "troque-essa-chave";
+
 
 function authMiddleware(req, res, next) {
   const auth = req.headers.authorization || "";
@@ -1537,3 +1557,4 @@ app.post("/pagamentos/:id/estornar", authMiddleware, requireRole("ADMIN","FINANC
 app.listen(PORT, () => {
   console.log("API rodando em http://127.0.0.1:" + PORT);
 });
+
