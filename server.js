@@ -8,6 +8,7 @@ const app = express();
 // ✅ CONFIGURAÇÃO CORRETA DO CORS
 const allowlist = [
   "https://cuidarconnect.siteoficial.ws",
+  "http://cuidarconnect.siteoficial.ws/",
   "https://www.cuidarconnect.siteoficial.ws",
   "http://localhost:5500",
   "http://127.0.0.1:5500"
@@ -1557,4 +1558,5 @@ app.post("/pagamentos/:id/estornar", authMiddleware, requireRole("ADMIN","FINANC
 app.listen(PORT, () => {
   console.log("API rodando em http://127.0.0.1:" + PORT);
 });
+
 
