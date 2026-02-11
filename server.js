@@ -1,18 +1,37 @@
 require("dotenv").config();
 const express = require("express");
-const pool = require("./db");
 const cors = require("cors");
+const pool = require("./db");
 
 const app = express();
-app.use(cors());
+
+/* ✅ CORS (depois do app existir) */
+const allowlist = [
+  "http://cuidarconnect.siteoficial.ws",
+  "https://cuidarconnect.siteoficial.ws",
+  "http://www.cuidarconnect.siteoficial.ws",
+  "https://www.cuidarconnect.siteoficial.ws",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+];
+
+const corsOptions = {
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true); // Postman/healthcheck
+    if (allowlist.includes(origin)) return cb(null, true);
+    return cb(new Error("CORS bloqueado: " + origin));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // ✅ preflight
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
 
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-
-const JWT_SECRET = process.env.JWT_SECRET || "troque-essa-chave";
 
 
 function authMiddleware(req, res, next) {
@@ -1538,6 +1557,7 @@ app.post("/pagamentos/:id/estornar", authMiddleware, requireRole("ADMIN","FINANC
 app.listen(PORT, () => {
   console.log("API rodando em http://127.0.0.1:" + PORT);
 });
+
 
 
 
