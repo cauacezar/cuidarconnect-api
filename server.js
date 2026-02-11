@@ -1,33 +1,10 @@
+require("dotenv").config();
+const express = require("express");
+const pool = require("./db");
 const cors = require("cors");
 
-const allowlist = [
-  "http://cuidarconnect.siteoficial.ws",
-  "https://cuidarconnect.siteoficial.ws",
-  "http://www.cuidarconnect.siteoficial.ws",
-  "https://www.cuidarconnect.siteoficial.ws",
-  "http://localhost:5500",
-  "http://127.0.0.1:5500",
-];
-
-const corsOptions = {
-  origin: (origin, cb) => {
-    // libera requests sem Origin (ex: Postman/Render healthcheck)
-    if (!origin) return cb(null, true);
-
-    if (allowlist.includes(origin)) return cb(null, true);
-
-    return cb(new Error("CORS bloqueado: " + origin));
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-
-app.use(cors(corsOptions));
-
-// ✅ IMPORTANTE: responder preflight
-app.options("*", cors(corsOptions));
-
-
+const app = express();
+app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
@@ -1561,6 +1538,7 @@ app.post("/pagamentos/:id/estornar", authMiddleware, requireRole("ADMIN","FINANC
 app.listen(PORT, () => {
   console.log("API rodando em http://127.0.0.1:" + PORT);
 });
+
 
 
 
