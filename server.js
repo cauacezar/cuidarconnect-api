@@ -1938,6 +1938,29 @@ app.post("/api/titulares", verificarApiKey, async (req, res) => {
   }
 });
 
+app.get("/api/titulares", async (req,res)=>{
+
+    try{
+
+    const r = await pool.query(`
+    SELECT id,nome,email,telefone
+    FROM titulares
+    ORDER BY id DESC
+    LIMIT 50
+    `)
+
+    res.json({
+    ok:true,
+    titulares:r.rows
+    })
+
+    }catch(err){
+    console.error(err)
+    res.status(500).json({ok:false,error:"Erro ao buscar titulares"})
+    }
+
+})
+
 
 /* ===========================
    (As rotas de FINANCEIRO e INADIMPLÊNCIA)
