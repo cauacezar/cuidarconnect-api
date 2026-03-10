@@ -2016,29 +2016,6 @@ app.post("/api/titulares", async (req,res)=>{
 
 })
 
-app.post("/api/titulares", async (req,res)=>{
-
-try{
-
-const {nome,email,telefone} = req.body
-
-const r = await pool.query(`
-INSERT INTO titulares (nome,email,telefone)
-VALUES ($1,$2,$3)
-RETURNING id
-`,[nome,email,telefone])
-
-res.json({
-ok:true,
-titular_id:r.rows[0].id
-})
-
-}catch(err){
-console.error(err)
-res.status(500).json({ok:false,error:"Erro ao criar titular"})
-}
-
-})
 
 app.post("/api/dependentes", async (req,res)=>{
 
@@ -2108,6 +2085,31 @@ pagamento_id:r.rows[0].id
 }catch(err){
 console.error(err)
 res.status(500).json({ok:false,error:"Erro ao registrar pagamento"})
+}
+
+})
+
+app.get("/api/pagamentos/:titular_id", async (req,res)=>{
+
+try{
+
+const id = req.params.titular_id
+
+const r = await pool.query(`
+SELECT *
+FROM pagamentos
+WHERE titular_id = $1
+ORDER BY id DESC
+`,[id])
+
+res.json({
+ok:true,
+pagamentos:r.rows
+})
+
+}catch(err){
+console.error(err)
+res.status(500).json({ok:false,error:"Erro ao buscar pagamentos"})
 }
 
 })
