@@ -1903,7 +1903,7 @@ next()
 
 }
 
-app.get("/api/titulares", checkApiKey, async (req,res)=>{
+app.get("/api/titulares", async (req,res)=>{
 
 const r = await pool.query(`
 SELECT id,nome,email,telefone
@@ -1938,7 +1938,7 @@ app.post("/api/titulares", verificarApiKey, async (req, res) => {
   }
 });
 
-app.get("/api/titulares", checkApiKey, async (req,res)=>{
+app.get("/api/titulares", async (req,res)=>{
 
     try{
 
@@ -1961,7 +1961,7 @@ app.get("/api/titulares", checkApiKey, async (req,res)=>{
 
 })
 
-app.get("/api/titulares/:id", checkApiKey, async (req,res)=>{
+app.get("/api/titulares/:id", async (req,res)=>{
 
     try{
 
@@ -1992,7 +1992,7 @@ app.get("/api/titulares/:id", checkApiKey, async (req,res)=>{
 
 })
 
-app.post("/api/titulares", checkApiKey, async (req,res)=>{
+app.post("/api/titulares", async (req,res)=>{
 
   try{
 
@@ -2017,7 +2017,7 @@ app.post("/api/titulares", checkApiKey, async (req,res)=>{
 })
 
 
-app.post("/api/dependentes", checkApiKey, async (req,res)=>{
+app.post("/api/dependentes", async (req,res)=>{
 
 try{
 
@@ -2041,7 +2041,7 @@ res.status(500).json({ok:false,error:"Erro ao criar dependente"})
 
 })
 
-app.get("/api/dependentes/:titular_id", checkApiKey, async (req,res)=>{
+app.get("/api/dependentes/:titular_id", async (req,res)=>{
 
 try{
 
@@ -2065,7 +2065,7 @@ res.status(500).json({ok:false,error:"Erro ao buscar dependentes"})
 
 })
 
-app.post("/api/pagamentos", checkApiKey, async (req,res)=>{
+app.post("/api/pagamentos", async (req,res)=>{
 
 try{
 
@@ -2089,7 +2089,7 @@ res.status(500).json({ok:false,error:"Erro ao registrar pagamento"})
 
 })
 
-app.get("/api/pagamentos/:titular_id", checkApiKey, async (req,res)=>{
+app.get("/api/pagamentos/:titular_id", async (req,res)=>{
 
 try{
 
@@ -2114,28 +2114,6 @@ res.status(500).json({ok:false,error:"Erro ao buscar pagamentos"})
 
 })
 
-/* ===========================
-    SEGURANCA API KEY
-    - exemplo de endpoint público para integração com API Key
-    - use o header "x-api-key" com a chave definida em .env
-   =========================== */
-
-   const API_KEY = process.env.API_KEY || "cuidarconnect";
-
-    function checkApiKey(req,res,next){
-
-    const key = req.headers["x-api-key"] || req.query.key;
-
-    if(key !== API_KEY){
-    return res.status(401).json({
-    ok:false,
-    error:"API KEY inválida"
-    })
-    }
-
-    next();
-
-  }
 
 /* ===========================
    (As rotas de FINANCEIRO e INADIMPLÊNCIA)
