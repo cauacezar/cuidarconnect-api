@@ -2124,7 +2124,7 @@ res.status(500).json({ok:false,error:"Erro ao buscar pagamentos"})
 
     function checkApiKey(req,res,next){
 
-    const key = req.headers["x-api-key"];
+    const key = req.headers["x-api-key"] || req.query.key;
 
     if(key !== API_KEY){
     return res.status(401).json({
