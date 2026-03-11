@@ -1983,6 +1983,22 @@ app.get("/api/titulares", async (req,res)=>{
 
 })
 
+/**
+ * @swagger
+ * /api/titulares/{id}:
+ *   get:
+ *     summary: Buscar titular por ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do titular
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Titular encontrado
+ */
 app.get("/api/titulares/:id", async (req,res)=>{
 
     try{
@@ -2014,124 +2030,79 @@ app.get("/api/titulares/:id", async (req,res)=>{
 
 })
 
-app.post("/api/titulares", async (req,res)=>{
-
-  try{
-
-    const {nome,email,telefone} = req.body
-
-    const r = await pool.query(`
-    INSERT INTO titulares (nome,email,telefone)
-    VALUES ($1,$2,$3)
-    RETURNING id
-    `,[nome,email,telefone])
-
-    res.json({
-    ok:true,
-    titular_id:r.rows[0].id
-    })
-
-    }catch(err){
-    console.error(err)
-    res.status(500).json({ok:false,error:"Erro ao criar titular"})
-  }
-
-})
 
 
-app.post("/api/dependentes", async (req,res)=>{
+/**
+ * @swagger
+ * /api/elegibilidade/{cpf}:
+ *   get:
+ *     summary: Verificar se o beneficiário pode consultar
+ *     parameters:
+ *       - in: path
+ *         name: cpf
+ *         required: true
+ *         description: CPF do titular
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Resultado da verificação
+ */
+app.get("/api/elegibilidade/:cpf", async (req,res)=>{
 
 try{
 
-const {titular_id,nome,cpf} = req.body
+const cpf = req.params.cpf
 
-const r = await pool.query(`
-INSERT INTO dependentes (titular_id,nome,cpf)
-VALUES ($1,$2,$3)
-RETURNING id
-`,[titular_id,nome,cpf])
+const titular = await pool.query(`
+SELECT id,nome,status
+FROM titulares
+WHERE cpf = $1
+`,[cpf])
 
-res.json({
-ok:true,
-dependente_id:r.rows[0].id
+if(titular.rows.length === 0){
+return res.json({
+ok:false,
+elegivel:false,
+motivo:"Titular não encontrado"
 })
-
-}catch(err){
-console.error(err)
-res.status(500).json({ok:false,error:"Erro ao criar dependente"})
 }
 
+const t = titular.rows[0]
+
+if(t.status !== "ATIVO"){
+return res.json({
+ok:true,
+elegivel:false,
+status:t.status
 })
+}
 
-app.get("/api/dependentes/:titular_id", async (req,res)=>{
-
-try{
-
-const id = req.params.titular_id
-
-const r = await pool.query(`
-SELECT id,nome,cpf
+const dependentes = await pool.query(`
+SELECT nome,cpf,status
 FROM dependentes
 WHERE titular_id = $1
-`,[id])
+`,[t.id])
 
 res.json({
 ok:true,
-dependentes:r.rows
+elegivel:true,
+titular:{
+nome:t.nome,
+status:t.status
+},
+dependentes:dependentes.rows
 })
 
 }catch(err){
+
 console.error(err)
-res.status(500).json({ok:false,error:"Erro ao buscar dependentes"})
-}
 
+res.status(500).json({
+ok:false,
+error:"Erro ao verificar elegibilidade"
 })
 
-app.post("/api/pagamentos", async (req,res)=>{
-
-try{
-
-const {titular_id,valor,data_pagamento} = req.body
-
-const r = await pool.query(`
-INSERT INTO pagamentos (titular_id,valor,data_pagamento)
-VALUES ($1,$2,$3)
-RETURNING id
-`,[titular_id,valor,data_pagamento])
-
-res.json({
-ok:true,
-pagamento_id:r.rows[0].id
-})
-
-}catch(err){
-console.error(err)
-res.status(500).json({ok:false,error:"Erro ao registrar pagamento"})
-}
-
-})
-
-app.get("/api/pagamentos/:titular_id", async (req,res)=>{
-
-try{
-
-const id = req.params.titular_id
-
-const r = await pool.query(`
-SELECT *
-FROM pagamentos
-WHERE titular_id = $1
-ORDER BY id DESC
-`,[id])
-
-res.json({
-ok:true,
-pagamentos:r.rows
-})
-
-}catch(err){
-console.error(err)
-res.status(500).json({ok:false,error:"Erro ao buscar pagamentos"})
 }
 
 })
