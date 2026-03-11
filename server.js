@@ -20,9 +20,6 @@ description: "API de integração do sistema Cuidar Connect"
 },
 servers: [
 {
-url: "http://localhost:3001"
-},
-{
 url: "https://cuidarconnect-api.onrender.com"
 }
 ]
