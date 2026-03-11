@@ -3,6 +3,30 @@ const express = require("express");
 const pool = require("./db");
 const cors = require("cors");
 
+const swaggerUi = require("swagger-ui-express")
+const swaggerJsdoc = require("swagger-jsdoc")
+
+const options = {
+definition: {
+openapi: "3.0.0",
+info: {
+title: "API Cuidar Connect",
+version: "1.0.0",
+description: "API de integração do sistema Cuidar Connect"
+},
+servers: [
+{
+url: "https://cuidarconnect-api.onrender.com"
+}
+]
+},
+apis: ["./server.js"]
+}
+
+const swaggerSpec = swaggerJsdoc(options)
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -1902,6 +1926,16 @@ error:"API Key inválida"
 next()
 
 }
+
+/**
+ * @swagger
+ * /api/titulares:
+ *   get:
+ *     summary: Lista todos os titulares
+ *     responses:
+ *       200:
+ *         description: Lista de titulares
+ */
 
 app.get("/api/titulares", async (req,res)=>{
 
