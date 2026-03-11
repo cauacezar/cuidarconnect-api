@@ -6,6 +6,10 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express")
 const swaggerJsdoc = require("swagger-jsdoc")
 
+const app = express();
+app.use(cors());
+app.use(express.json());
+
 const options = {
 definition: {
 openapi: "3.0.0",
@@ -15,6 +19,9 @@ version: "1.0.0",
 description: "API de integração do sistema Cuidar Connect"
 },
 servers: [
+{
+url: "http://localhost:3001"
+},
 {
 url: "https://cuidarconnect-api.onrender.com"
 }
@@ -26,10 +33,6 @@ apis: ["./server.js"]
 const swaggerSpec = swaggerJsdoc(options)
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-
-const app = express();
-app.use(cors());
-app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
 
@@ -1937,21 +1940,6 @@ next()
  *         description: Lista de titulares
  */
 
-app.get("/api/titulares", async (req,res)=>{
-
-const r = await pool.query(`
-SELECT id,nome,email,telefone
-FROM titulares
-ORDER BY id DESC
-LIMIT 10
-`)
-
-res.json({
-ok:true,
-titulares:r.rows
-})
-
-})
 
 // API pública para integração
 app.post("/api/titulares", verificarApiKey, async (req, res) => {
