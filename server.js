@@ -2052,31 +2052,18 @@ app.get("/api/elegibilidade/:cpf", async (req,res)=>{
 
 try{
 
-const cpf = req.params.cpf
+const cpf = req.params.cpf.replace(/\D/g,"")
 
+// 1️⃣ procura titular
 const titular = await pool.query(`
 SELECT id,nome,status
 FROM titulares
 WHERE cpf = $1
 `,[cpf])
 
-if(titular.rows.length === 0){
-return res.json({
-ok:false,
-elegivel:false,
-motivo:"Titular não encontrado"
-})
-}
+if(titular.rows.length){
 
 const t = titular.rows[0]
-
-if(t.status !== "ATIVO"){
-return res.json({
-ok:true,
-elegivel:false,
-status:t.status
-})
-}
 
 const dependentes = await pool.query(`
 SELECT nome,cpf,status
@@ -2084,14 +2071,52 @@ FROM dependentes
 WHERE titular_id = $1
 `,[t.id])
 
-res.json({
+return res.json({
 ok:true,
-elegivel:true,
+tipo:"TITULAR",
+elegivel: t.status === "ATIVO",
 titular:{
 nome:t.nome,
 status:t.status
 },
 dependentes:dependentes.rows
+})
+
+}
+
+// 2️⃣ procura dependente
+const dependente = await pool.query(`
+SELECT d.nome,d.status,t.id AS titular_id,t.nome AS titular_nome,t.status AS titular_status
+FROM dependentes d
+JOIN titulares t ON t.id = d.titular_id
+WHERE d.cpf = $1
+`,[cpf])
+
+if(dependente.rows.length){
+
+const d = dependente.rows[0]
+
+return res.json({
+ok:true,
+tipo:"DEPENDENTE",
+elegivel: d.titular_status === "ATIVO",
+dependente:{
+nome:d.nome,
+status:d.status
+},
+titular:{
+nome:d.titular_nome,
+status:d.titular_status
+}
+})
+
+}
+
+// 3️⃣ não encontrado
+return res.json({
+ok:false,
+elegivel:false,
+motivo:"CPF não encontrado"
 })
 
 }catch(err){
