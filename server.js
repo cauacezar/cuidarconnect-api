@@ -2003,7 +2003,7 @@ app.get("/api/titulares/:id", async (req,res)=>{
     const id = req.params.id
 
     const r = await pool.query(`
-    SELECT id,nome,email,telefone
+    SELECT id,nome,email,telefone,status
     FROM titulares
     WHERE id = $1
     `,[id])
@@ -2038,7 +2038,7 @@ app.get("/api/titulares/:id", async (req,res)=>{
  *       - in: path
  *         name: cpf
  *         required: true
- *         description: CPF do titular
+ *         description: CPF do titular ou dependente
  *         schema:
  *           type: string
  *     responses:
@@ -2136,5 +2136,5 @@ error:"Erro ao verificar elegibilidade"
    =========================== */
 
 app.listen(PORT, () => {
-  console.log("API rodando em http://127.0.0.1:" + PORT);
+  console.log("API rodando em https://cuidarconnect-api.onrender.com");
 });
