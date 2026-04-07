@@ -1929,59 +1929,6 @@ next()
 
 /**
  * @swagger
- * /api/titulares:
- *   get:
- *     summary: Lista todos os titulares
- *     responses:
- *       200:
- *         description: Lista de titulares
- */
-
-
-// API pública para integração
-app.post("/api/titulares", verificarApiKey, async (req, res) => {
-  try {
-    const { nome, cpf, telefone } = req.body;
-
-    const r = await pool.query(
-      `INSERT INTO titulares(nome, cpf, telefone, status)
-       VALUES($1,$2,$3,'ATIVO')
-       RETURNING id`,
-      [nome, cpf, telefone]
-    );
-
-    res.json({ ok: true, titular_id: r.rows[0].id });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, error: "Erro ao criar titular" });
-  }
-});
-
-app.get("/api/titulares", async (req,res)=>{
-
-    try{
-
-    const r = await pool.query(`
-    SELECT id,nome,email,telefone
-    FROM titulares
-    ORDER BY id DESC
-    LIMIT 50
-    `)
-
-    res.json({
-    ok:true,
-    titulares:r.rows
-    })
-
-    }catch(err){
-    console.error(err)
-    res.status(500).json({ok:false,error:"Erro ao buscar titulares"})
-    }
-
-})
-
-/**
- * @swagger
  * /api/titulares/{id}:
  *   get:
  *     summary: Buscar titular por ID
